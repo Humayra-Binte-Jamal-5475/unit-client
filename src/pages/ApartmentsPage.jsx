@@ -134,8 +134,14 @@ const ApartmentsPage = () => {
         </div>
       )}
 
-      {/* Pagination */}
-
+      {/* Pagination controls */}
+      <div className="flex justify-center gap-2 mt-10 flex-wrap">
+        <button className="btn" disabled={page === 1}          onClick={() => setPage(1)}>First</button>
+        <button className="btn" disabled={page === 1}          onClick={() => setPage(p=>p-1)}>Prev</button>
+        <span className="btn btn-ghost pointer-events-none">{page} / {totalPages}</span>
+        <button className="btn" disabled={page === totalPages} onClick={() => setPage(p=>p+1)}>Next</button>
+        <button className="btn" disabled={page === totalPages} onClick={() => setPage(totalPages)}>Last</button>
+      </div>
     </main>
   );
 };
