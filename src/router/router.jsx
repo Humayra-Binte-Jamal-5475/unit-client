@@ -7,6 +7,7 @@ import Register from '../pages/Register.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
 import PrivateRoute from '../provider/PrivateRoute.jsx';
 import NotFound from '../pages/NotFound.jsx';
+import ApartmentsPage from "../pages/ApartmentsPage.jsx";
 export const router = createBrowserRouter([
         {
             path: "/",
@@ -16,15 +17,15 @@ export const router = createBrowserRouter([
                     index: true,
                     element: <Home></Home>
                 },
-                // {
-                //     path: "available-foods",
-                //     loader: async () => {
-                //         const res = await fetch('https://food-loop-server-nu.vercel.app/foods');
-                //         const data = await res.json();
-                //         return data.filter(food => food.status === 'available');
-                //     },
-                //     element: <AvailableFoods></AvailableFoods>
-                // },
+                {
+                    path: "apartments",
+                    loader: async () => {
+                        const res = await fetch('http://localhost:3000/apartments');
+                        const data = await res.json();
+                        return data;
+                    },
+                    element: <ApartmentsPage></ApartmentsPage>
+                },
                 // {
                 //     path: "/foods/:id",
                 //     element: <PrivateRoute><FoodDetails /></PrivateRoute>,
