@@ -1,81 +1,98 @@
-import { useEffect, useState } from "react";
-import app from "../firebase/firebase.config.js"
-import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth'
-import { createContext } from "react";
-import { getAuth } from "firebase/auth";
+import { useEffect, useState, createContext } from "react";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+  getAuth,
+} from "firebase/auth";
+import axios from "axios";
+import app from "../firebase/firebase.config.js";
 
-const auth= getAuth(app);
+const auth = getAuth(app);
 export const AuthContext = createContext();
-const AuthProvider = ({children}) => {
-    const [user, setUser] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
 
-const createUser=(email,password)=>{
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const createUser = (email, password) => {
     setIsLoading(true);
-    return createUserWithEmailAndPassword(auth,email,password);
-};
-const signIn=(email,password)=>{
+    return createUserWithEmailAndPassword(auth, email, password)
+      .finally(() => setIsLoading(false));
+  };
+
+  const signIn = (email, password) => {
     setIsLoading(true);
-    return signInWithEmailAndPassword(auth,email,password);
-};
-   const googleProvider = new GoogleAuthProvider();
+    return signInWithEmailAndPassword(auth, email, password)
+      .finally(() => setIsLoading(false));
+  };
 
-   const updateUserProfile = (displayName, photoURL) => {
-       return updateProfile(auth.currentUser, { displayName, photoURL})
-       .then(() => {
-         setUser({...user, displayName, photoURL})
-       })
-       .catch(err=> {
-        console.log(err)
-       })
-   }
+  const googleProvider = new GoogleAuthProvider();
 
-   const signInWithGoogle = () => {
-      return signInWithPopup(auth, googleProvider)
-   }
+  const updateUserProfile = (displayName, photoURL) => {
+    return updateProfile(auth.currentUser, { displayName, photoURL })
+      .then(() => {
+        setUser(prev => ({ ...prev, displayName, photoURL }));
+      })
+      .catch(err => console.log(err));
+  };
 
-   const logOut = () => {
-     setIsLoading(false)
-   return signOut(auth);
-    
-   }
-   const resetPassword = (email) => {
+  const signInWithGoogle = () => {
+    setIsLoading(true);
+    return signInWithPopup(auth, googleProvider)
+      .finally(() => setIsLoading(false));
+  };
+
+  const logOut = () => {
+    setIsLoading(true);
+    return signOut(auth).finally(() => setIsLoading(false));
+  };
+
+  const resetPassword = (email) => {
     setIsLoading(true);
     return sendPasswordResetEmail(auth, email)
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        throw error; // Pass the error to the calling component
-      });
-  }
+      .finally(() => setIsLoading(false));
+  };
 
-   useEffect(() => {
-          const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser)
-            setIsLoading(false)
-          })
+  // Firebase → backend sync to get role
+  useEffect(() => {
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          const { data } = await axios.post("http://localhost:3000/auth/login", { token });
+          setUser({ ...currentUser, role: data.role }); // Attach role from DB
+        } catch (err) {
+          console.error("Role fetch failed", err);
+          setUser(currentUser); // fallback without role
+        }
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
 
-          return () => unSubscribe() //cleanup function
-   }, [])
+    return () => unSubscribe();
+  }, []);
 
-   const userInfo = {
-    signInWithGoogle,
-    user,
+  const userInfo = {
+    user, // has user.role
     setUser,
-    createUser,
-    logOut,
     isLoading,
+    createUser,
     signIn,
+    signInWithGoogle,
     updateUserProfile,
-    resetPassword
-   }
-    
+    resetPassword,
+    logOut,
+  };
 
-
-
-   return <AuthContext.Provider value={userInfo}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={userInfo}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
