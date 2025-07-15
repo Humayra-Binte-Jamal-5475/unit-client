@@ -8,6 +8,9 @@ import AuthLayout from '../layouts/AuthLayout.jsx';
 import PrivateRoute from '../provider/PrivateRoute.jsx';
 import NotFound from '../pages/NotFound.jsx';
 import ApartmentsPage from "../pages/ApartmentsPage.jsx";
+import Announcements from "../pages/dashboard/Announcements.jsx";
+import MyProfile from "../pages/dashboard/MyProfile.jsx";
+import DashboardLayout from "../layouts/DashboardLayout.jsx";
 export const router = createBrowserRouter([
         {
             path: "/",
@@ -26,29 +29,21 @@ export const router = createBrowserRouter([
                     },
                     element: <ApartmentsPage></ApartmentsPage>
                 },
-                // {
-                //     path: "/foods/:id",
-                //     element: <PrivateRoute><FoodDetails /></PrivateRoute>,
-                //     loader: async ({ params }) => {
-                //         const res = await fetch(`https://food-loop-server-nu.vercel.app/foods/${params.id}`);
-                //         return res.json();
-                //     }
-                // },
-                // {
-                //     path: "/add-food",
-                //     element: <PrivateRoute><AddFood /></PrivateRoute>
-                // },
-                // {
-                //     path: "/my-foods",
-                //     element: <PrivateRoute><MyFoods /></PrivateRoute>,
-                // },
-                // {
-                //     path: "/my-requests",
-                //     element: <PrivateRoute><MyRequests /></PrivateRoute>,
-                // },
-
             ]
         },
+        {
+        path: "dashboard",
+        element: (
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        ),
+        children: [
+          { path: "profile",       element: <MyProfile/> },
+          { path: "announcements", element: <Announcements/> },
+          { index: true, element: <MyProfile /> } // default dashboard page
+        ],
+      },
         {
             path: '/auth',
             element: <AuthLayout></AuthLayout>,
