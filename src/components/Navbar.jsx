@@ -3,7 +3,6 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 import logo from "../assets/logo.jpg";
 import { FaCircleUser } from "react-icons/fa6";
-import { IoIosArrowDown } from "react-icons/io";
 import { MdDashboard } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
 import Swal from "sweetalert2";
@@ -28,9 +27,10 @@ const NavBar = () => {
       .catch((err) => console.error("Logout error:", err));
   };
 
-  // Removed TypeScript annotation so this file parses correctly in .jsx
   const navLinkStyle = ({ isActive }) =>
-    `hover:text-[#DAA49A] transition-colors ${isActive ? "text-[#334155] font-semibold" : "text-[#1F1F1F]"}`;
+    `hover:text-[#DAA49A] transition-colors ${
+      isActive ? "text-[#334155] font-semibold" : "text-[#1F1F1F]"
+    }`;
 
   return (
     <nav className="bg-[#F4EDE4]/80 backdrop-blur shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-50">
@@ -68,18 +68,23 @@ const NavBar = () => {
               <FaCircleUser className="h-8 w-8 text-[#334155]" />
             )}
           </button>
+
           {open && (
             <div className="absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-lg overflow-hidden">
               <div className="px-4 py-3 text-sm font-medium text-[#1F1F1F] border-b">
                 {user.displayName || user.name}
               </div>
+
+              {/* role‑aware dashboard link */}
               <Link
-                to="/dashboard"
+                to={user.role === "admin" ? "/admin" : "/dashboard"}
                 className="flex items-center gap-2 px-4 py-3 hover:bg-[#F4EDE4] text-[#1F1F1F]"
                 onClick={() => setOpen(false)}
               >
-                <MdDashboard /> Dashboard
+                <MdDashboard />
+                {user.role === "admin" ? "Admin Panel" : "Dashboard"}
               </Link>
+
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2 px-4 py-3 hover:bg-[#F4EDE4] text-[#B35648]"
@@ -99,6 +104,7 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
 
 
 

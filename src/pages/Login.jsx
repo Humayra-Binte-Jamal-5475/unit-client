@@ -10,22 +10,26 @@ const Login = () => {
   const location = useLocation()
   const [error, setError] = useState();
   const { signIn, signInWithGoogle } = useContext(AuthContext);
-const handleLogin = (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const password = form.password.value;
-  const email = form.email.value;
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const password = form.password.value;
+    const email = form.email.value;
 
-  signIn(email, password)
-    .then(async (result) => {
+    try {
+      const result = await signIn(email, password);
+      console.log("🔁 Firebase login result:", result);
+      // ✅ Check if result is valid
+      if (!result || !result.user) {
+        setError("Login failed. Please try again.");
+        return;
+      }
+
       const loggedInUser = result.user;
-      // Get Firebase ID token (JWT)
       const idToken = await loggedInUser.getIdToken();
 
-      // Store the token in localStorage
       localStorage.setItem('access-token', idToken);
 
-      // Now you can remove your patch call if you want
       navigate(location.state || '/');
       Swal.fire({
         text: "Login successful!",
@@ -33,27 +37,26 @@ const handleLogin = (e) => {
         confirmButtonText: 'close'
       });
       form.reset();
-    })
-    .catch(error => {
-      setError(error.code);
+    } catch (error) {
+      setError(error.code || "Login error");
       console.error("Login error:", error);
-    });
-};
+    }
+  };
 
-const handleGoogleLogin = () => {
-  signInWithGoogle()
-    .then(async (result) => {
-      const loggedInUser = result.user;
-      // Get Firebase ID token (JWT)
-      const idToken = await loggedInUser.getIdToken();
+  const handleGoogleLogin = () => {
+    signInWithGoogle()
+      .then(async (result) => {
+        const loggedInUser = result.user;
+        // Get Firebase ID token (JWT)
+        const idToken = await loggedInUser.getIdToken();
 
-      localStorage.setItem('access-token', idToken);
-      navigate(location.state || '/');
-    })
-    .catch(err => {
-      console.error('Google login error:', err);
-    });
-};
+        localStorage.setItem('access-token', idToken);
+        navigate(location.state || '/');
+      })
+      .catch(err => {
+        console.error('Google login error:', err);
+      });
+  };
 
 
   return (

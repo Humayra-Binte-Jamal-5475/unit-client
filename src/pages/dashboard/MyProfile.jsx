@@ -1,7 +1,8 @@
-import { getAuth } from "firebase/auth";
+import { useContext } from "react";
+import { AuthContext } from "../../provider/AuthProvider";
 
 const MyProfile = () => {
-  const user = getAuth().currentUser;
+  const { user, isLoading } = useContext(AuthContext);
 
   return (
     <div>
@@ -10,6 +11,7 @@ const MyProfile = () => {
         <img src={user?.photoURL || "/placeholder.jpg"} alt="Profile" className="w-24 rounded-full" />
         <p><strong>Name:</strong> {user?.displayName}</p>
         <p><strong>Email:</strong> {user?.email}</p>
+        <p><strong>Role:</strong> {user?.role || "None"}</p>
         <p><strong>Agreement Date:</strong> None</p>
         <p><strong>Apartment Info:</strong> Floor: None, Block: None, Room No: None</p>
       </div>
@@ -18,3 +20,4 @@ const MyProfile = () => {
 };
 
 export default MyProfile;
+

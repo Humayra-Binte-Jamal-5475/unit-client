@@ -7,7 +7,7 @@ const AdminRoute = ({ children }) => {
   const { user, isLoading } = useContext(AuthContext);
   const location = useLocation();
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <Loading/>;
 
   if (!user || user.role !== "admin") {
     return <Navigate to="/" state={{ from: location }} replace />;

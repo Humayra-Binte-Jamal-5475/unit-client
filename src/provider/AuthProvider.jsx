@@ -1,4 +1,3 @@
-import { useEffect, useState, createContext } from "react";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -10,6 +9,7 @@ import {
   updateProfile,
   getAuth,
 } from "firebase/auth";
+import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import app from "../firebase/firebase.config.js";
 
@@ -18,71 +18,99 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const createUser = (email, password) => {
-    setIsLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password)
-      .finally(() => setIsLoading(false));
-  };
-
-  const signIn = (email, password) => {
-    setIsLoading(true);
-    return signInWithEmailAndPassword(auth, email, password)
-      .finally(() => setIsLoading(false));
-  };
-
+  const [isLoading, setLoad] = useState(true);
   const googleProvider = new GoogleAuthProvider();
 
-  const updateUserProfile = (displayName, photoURL) => {
-    return updateProfile(auth.currentUser, { displayName, photoURL })
-      .then(() => {
-        setUser(prev => ({ ...prev, displayName, photoURL }));
-      })
-      .catch(err => console.log(err));
+  // 🔁 Sync firebase user with backend
+  const syncWithBackend = async (firebaseUser) => {
+    try {
+      const token = await firebaseUser.getIdToken();
+      const { data } = await axios.post("http://localhost:3000/auth/login", { token });
+
+      console.log("✅ /auth/login response:", data);
+
+      setUser({
+        uid: firebaseUser.uid,
+        displayName: firebaseUser.displayName || firebaseUser.email,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+        role: data.role,
+      });
+    } catch (err) {
+      console.error("⛔ Role fetch failed:", err);
+      setUser({
+        uid: firebaseUser.uid,
+        displayName: firebaseUser.displayName || firebaseUser.email,
+        email: firebaseUser.email,
+        photoURL: firebaseUser.photoURL,
+        role: "user", // fallback
+      });
+    }
   };
 
-  const signInWithGoogle = () => {
-    setIsLoading(true);
-    return signInWithPopup(auth, googleProvider)
-      .finally(() => setIsLoading(false));
-  };
-
-  const logOut = () => {
-    setIsLoading(true);
-    return signOut(auth).finally(() => setIsLoading(false));
-  };
-
-  const resetPassword = (email) => {
-    setIsLoading(true);
-    return sendPasswordResetEmail(auth, email)
-      .finally(() => setIsLoading(false));
-  };
-
-  // Firebase → backend sync to get role
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        try {
-          const token = await currentUser.getIdToken();
-          const { data } = await axios.post("http://localhost:3000/auth/login", { token });
-          setUser({ ...currentUser, role: data.role }); // Attach role from DB
-        } catch (err) {
-          console.error("Role fetch failed", err);
-          setUser(currentUser); // fallback without role
-        }
+    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        await syncWithBackend(fbUser);
       } else {
         setUser(null);
       }
-      setIsLoading(false);
+      setLoad(false);
     });
-
-    return () => unSubscribe();
+    return unsub;
   }, []);
 
-  const userInfo = {
-    user, // has user.role
-    setUser,
+  // ✅ All auth methods now return results
+  const createUser = async (email, password) => {
+    setLoad(true);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await syncWithBackend(result.user);
+      return result;
+    } finally {
+      setLoad(false);
+    }
+  };
+
+  const signIn = async (email, password) => {
+    setLoad(true);
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      await syncWithBackend(result.user);
+      return result;
+    } finally {
+      setLoad(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setLoad(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      await syncWithBackend(result.user);
+      return result;
+    } finally {
+      setLoad(false);
+    }
+  };
+
+  const updateUserProfile = async (displayName, photoURL) => {
+    await updateProfile(auth.currentUser, { displayName, photoURL });
+    setUser((prev) => ({ ...prev, displayName, photoURL }));
+  };
+
+  const logOut = () => {
+    setLoad(true);
+    return signOut(auth).finally(() => setLoad(false));
+  };
+
+  const resetPassword = (email) => {
+    setLoad(true);
+    return sendPasswordResetEmail(auth, email).finally(() => setLoad(false));
+  };
+
+  const value = {
+    user,
     isLoading,
     createUser,
     signIn,
@@ -92,7 +120,11 @@ const AuthProvider = ({ children }) => {
     logOut,
   };
 
-  return <AuthContext.Provider value={userInfo}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
+
+
+
+
