@@ -7,54 +7,62 @@ const ManageCoupons = () => {
   const [form, setForm] = useState({ code: "", discount: "", description: "" });
 
   useEffect(() => {
-    axios.get("http://localhost:3000/coupons").then(res => setCoupons(res.data));
+    axios.get("http://localhost:3000/coupons")
+      .then(res => setCoupons(res.data));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("http://localhost:3000/coupons", form);
-    setCoupons([...coupons, form]);
-    setModalOpen(false);
+    await axios.post("http://localhost:3000/coupons", form, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
     setForm({ code: "", discount: "", description: "" });
+    setModalOpen(false);
+    const res = await axios.get("http://localhost:3000/coupons");
+    setCoupons(res.data);
   };
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Manage Coupons</h2>
-      <button className="btn btn-primary mb-4" onClick={() => setModalOpen(true)}>Add Coupon</button>
-      
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Manage Coupons</h2>
+        <button onClick={() => setModalOpen(true)} className="btn btn-primary">Add Coupon</button>
+      </div>
+
       <table className="w-full bg-white border">
         <thead>
-          <tr><th>Code</th><th>Discount</th><th>Description</th></tr>
+          <tr>
+            <th>Code</th><th>Discount (%)</th><th>Description</th><th>Date</th>
+          </tr>
         </thead>
         <tbody>
           {coupons.map(c => (
             <tr key={c._id}>
               <td>{c.code}</td>
-              <td>{c.discount}%</td>
+              <td>{c.discount}</td>
               <td>{c.description}</td>
+              <td>{new Date(c.createdAt).toLocaleDateString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
+      {/* Modal */}
       {modalOpen && (
-        <div className="modal">
-          <form onSubmit={handleSubmit} className="modal-box space-y-3">
-            <input placeholder="Coupon Code" value={form.code}
-              onChange={(e) => setForm({ ...form, code: e.target.value })}
-              className="input input-bordered w-full"
-            />
-            <input placeholder="Discount (%)" type="number" value={form.discount}
-              onChange={(e) => setForm({ ...form, discount: e.target.value })}
-              className="input input-bordered w-full"
-            />
-            <textarea placeholder="Description" value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="textarea textarea-bordered w-full"
-            />
-            <button type="submit" className="btn btn-success">Submit</button>
-          </form>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+          <div className="bg-white p-6 rounded-md w-96 space-y-4 relative">
+            <button onClick={() => setModalOpen(false)} className="absolute right-3 top-2 text-lg">✖</button>
+            <h3 className="text-lg font-bold">Add New Coupon</h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input type="text" required placeholder="Coupon Code" className="input input-bordered w-full"
+                value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} />
+              <input type="number" required placeholder="Discount %" className="input input-bordered w-full"
+                value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
+              <textarea placeholder="Description" className="textarea textarea-bordered w-full"
+                value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}></textarea>
+              <button type="submit" className="btn btn-success w-full">Submit</button>
+            </form>
+          </div>
         </div>
       )}
     </div>
@@ -62,3 +70,5 @@ const ManageCoupons = () => {
 };
 
 export default ManageCoupons;
+
+
