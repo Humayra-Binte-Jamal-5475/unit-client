@@ -21,13 +21,12 @@ const AuthProvider = ({ children }) => {
   const [isLoading, setLoad] = useState(true);
   const googleProvider = new GoogleAuthProvider();
 
-  // 🔁 Sync firebase user with backend
   const syncWithBackend = async (firebaseUser) => {
     try {
       const token = await firebaseUser.getIdToken();
-      const { data } = await axios.post("http://localhost:3000/auth/login", { token });
+      localStorage.setItem("token", token);
 
-      console.log("✅ /auth/login response:", data);
+      const { data } = await axios.post("http://localhost:3000/auth/login", { token });
 
       setUser({
         uid: firebaseUser.uid,
@@ -43,7 +42,7 @@ const AuthProvider = ({ children }) => {
         displayName: firebaseUser.displayName || firebaseUser.email,
         email: firebaseUser.email,
         photoURL: firebaseUser.photoURL,
-        role: "user", // fallback
+        role: "user",
       });
     }
   };
@@ -51,16 +50,19 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
+        const token = await fbUser.getIdToken(true);
+        localStorage.setItem("token", token);
         await syncWithBackend(fbUser);
       } else {
         setUser(null);
+        localStorage.removeItem("token");
       }
       setLoad(false);
     });
     return unsub;
   }, []);
 
-  // ✅ All auth methods now return results
+  // ✅ These must be outside useEffect
   const createUser = async (email, password) => {
     setLoad(true);
     try {

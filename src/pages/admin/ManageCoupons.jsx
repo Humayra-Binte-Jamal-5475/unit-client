@@ -13,14 +13,20 @@ const ManageCoupons = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("http://localhost:3000/coupons", form, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    });
-    setForm({ code: "", discount: "", description: "" });
-    setModalOpen(false);
-    const res = await axios.get("http://localhost:3000/coupons");
-    setCoupons(res.data);
+    try {
+      await axios.post("http://localhost:3000/coupons", form, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setForm({ code: "", discount: "", description: "" });
+      setModalOpen(false);
+      const res = await axios.get("http://localhost:3000/coupons");
+      setCoupons(res.data);
+    } catch (err) {
+      console.error("❌ Coupon submit failed:", err.response?.data || err.message);
+      alert("Submit failed! Are you logged in as admin?");
+    }
   };
+
 
   return (
     <div>
