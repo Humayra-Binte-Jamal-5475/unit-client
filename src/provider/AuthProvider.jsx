@@ -44,7 +44,9 @@ const AuthProvider = ({ children }) => {
         photoURL: firebaseUser.photoURL,
         role: "user",
       });
-    }
+    } finally{
+      console.log("Logged in user role:", data.role);
+    }   
   };
 
   useEffect(() => {

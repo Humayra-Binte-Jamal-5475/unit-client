@@ -28,8 +28,7 @@ const NavBar = () => {
   };
 
   const navLinkStyle = ({ isActive }) =>
-    `hover:text-[#DAA49A] transition-colors ${
-      isActive ? "text-[#334155] font-semibold" : "text-[#1F1F1F]"
+    `hover:text-[#DAA49A] transition-colors ${isActive ? "text-[#334155] font-semibold" : "text-[#1F1F1F]"
     }`;
 
   return (
@@ -77,13 +76,24 @@ const NavBar = () => {
 
               {/* role‑aware dashboard link */}
               <Link
-                to={user.role === "admin" ? "/admin" : "/dashboard"}
+                to={
+                  user.role === "admin"
+                    ? "/admin"
+                    : user.role === "member"
+                      ? "/member"
+                      : "/dashboard"
+                }
                 className="flex items-center gap-2 px-4 py-3 hover:bg-[#F4EDE4] text-[#1F1F1F]"
                 onClick={() => setOpen(false)}
               >
                 <MdDashboard />
-                {user.role === "admin" ? "Admin Panel" : "Dashboard"}
+                {user.role === "admin"
+                  ? "Admin Panel"
+                  : user.role === "member"
+                    ? "Member Panel"
+                    : "Dashboard"}
               </Link>
+
 
               <button
                 onClick={handleLogout}

@@ -7,6 +7,7 @@ import Register from "../pages/Register";
 import AuthLayout from "../layouts/AuthLayout";
 import PrivateRoute from "../provider/PrivateRoute";
 import AdminRoute from "../provider/AdminRoute";
+import MemberRoute from "../provider/MemberRoute";
 import NotFound from "../pages/NotFound";
 import ApartmentsPage from "../pages/ApartmentsPage";
 import Announcements from "../pages/dashboard/Announcements";
@@ -18,6 +19,9 @@ import ManageMembers from "../pages/admin/ManageMembers";
 import MakeAnnouncement from "../pages/admin/MakeAnnouncement";
 import AgreementRequests from "../pages/admin/AgreementRequests";
 import ManageCoupons from "../pages/admin/ManageCoupons";
+import MemberDashboardLayout from "../layouts/MemberDashboardLayout";
+import MakePayment from "../pages/member/MakePayment";
+import PaymentHistory from "../pages/member/PaymentHistory";
 
 export const router = createBrowserRouter([
     /* ---------------- Home & public pages ---------------- */
@@ -71,9 +75,26 @@ export const router = createBrowserRouter([
             { path: "coupons", element: <ManageCoupons /> },
         ],
     },
+    {
+        path: "/member",
+        element: (
+            <PrivateRoute>
+                <MemberRoute>
+                    <MemberDashboardLayout />
+                </MemberRoute>
+            </PrivateRoute>
+        ),
+        children: [
+            { index: true, element: <MyProfile /> },
+            { path: "profile", element: <MyProfile /> },
+            { path: "make-payment", element: <MakePayment /> },
+            { path: "payments", element: <PaymentHistory /> },
+            { path: "announcements", element: <Announcements /> },
+        ],
+    },
 
     /* ---------------- Auth pages ---------------- */
-    {
+     {
         path: "auth",
         element: <AuthLayout />,
         children: [
