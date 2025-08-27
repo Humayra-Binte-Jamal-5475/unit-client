@@ -28,7 +28,7 @@ const ApartmentsPage = () => {
         if (minRent) params.min = minRent;
         if (maxRent) params.max = maxRent;
 
-        const res = await axios.get("http://localhost:3000/apartments", {
+        const res = await axios.get("https://unit-app-server.vercel.app/apartments", {
           params,
           signal: ctrl.signal,
         });
@@ -51,7 +51,7 @@ const ApartmentsPage = () => {
       const token = await user.getIdToken();
 
       await axios.post(
-        "http://localhost:3000/agreements",
+        "https://unit-app-server.vercel.app/agreements",
         {
           aptId: apt._id,
           userName: user.displayName,

@@ -4,7 +4,7 @@ const Announcements = () => {
   const [announcements, setAnnouncements] = useState([]);
 
 useEffect(() => {
-  fetch("http://localhost:3000/announcements")
+  fetch("https://unit-app-server.vercel.app/announcements")
     .then(async (res) => {
       if (!res.ok) throw new Error("Failed to fetch announcements");
       return res.json();

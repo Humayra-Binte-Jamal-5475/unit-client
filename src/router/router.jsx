@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import HomeLayout from "../layouts/HomeLayout";
 import Home from "../pages/Home";
 import ForgetPassword from "../pages/ForgetPassword";
@@ -22,7 +23,8 @@ import ManageCoupons from "../pages/admin/ManageCoupons";
 import MemberDashboardLayout from "../layouts/MemberDashboardLayout";
 import MakePayment from "../pages/member/MakePayment";
 import PaymentHistory from "../pages/member/PaymentHistory";
-
+import AdminOverview from "../pages/admin/AdminOverview";
+const queryClient = new QueryClient();
 export const router = createBrowserRouter([
     /* ---------------- Home & public pages ---------------- */
     {
@@ -33,7 +35,7 @@ export const router = createBrowserRouter([
             {
                 path: "apartments",
                 loader: async () => {
-                    const res = await fetch("http://localhost:3000/apartments");
+                    const res = await fetch("https://unit-app-server.vercel.app/apartments");
                     if (!res.ok) throw new Response("Failed to load", { status: res.status });
                     return res.json();
                 },
@@ -63,24 +65,32 @@ export const router = createBrowserRouter([
         element: (
             <PrivateRoute>
                 <AdminRoute>
-                    <AdminDashboardLayout />
+                    <QueryClientProvider client={queryClient}>
+                        <AdminDashboardLayout />
+                    </QueryClientProvider>
                 </AdminRoute>
-            </PrivateRoute>
+            </PrivateRoute >
         ),
         children: [
             { index: true, element: <AdminProfile /> },
+            { path: "admin-profile", element: <AdminProfile/> },
             { path: "members", element: <ManageMembers /> },
             { path: "announcements", element: <MakeAnnouncement /> },
             { path: "agreements", element: <AgreementRequests /> },
             { path: "coupons", element: <ManageCoupons /> },
+            { path: "overview", element: <AdminOverview/> }
         ],
     },
+
+
     {
         path: "/member",
         element: (
             <PrivateRoute>
                 <MemberRoute>
-                    <MemberDashboardLayout />
+                    <QueryClientProvider client={queryClient}>
+                        <MemberDashboardLayout />
+                    </QueryClientProvider>
                 </MemberRoute>
             </PrivateRoute>
         ),
@@ -94,7 +104,7 @@ export const router = createBrowserRouter([
     },
 
     /* ---------------- Auth pages ---------------- */
-     {
+    {
         path: "auth",
         element: <AuthLayout />,
         children: [

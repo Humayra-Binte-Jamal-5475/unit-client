@@ -14,7 +14,7 @@ const LocationSection = () => {
   const position = [23.7806, 90.4074]; // Example: Dhaka, Bangladesh
 
   return (
-    <section className="bg-[#FAF9F6] py-16 px-6">
+    <section className="bg-[#FAF9F6] py-16 px-6 relative z-10"> {/* Added relative and z-10 */}
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-center text-[#334155] mb-8">
           📍 Our Location
@@ -35,9 +35,14 @@ const LocationSection = () => {
             </ul>
           </div>
 
-          {/* Map Section */}
-          <div className="rounded-xl overflow-hidden shadow-lg h-96">
-            <MapContainer center={position} zoom={15} scrollWheelZoom={false} className="h-full w-full">
+          {/* Map Section - Added z-0 class */}
+          <div className="rounded-xl overflow-hidden shadow-lg h-96 z-0">
+            <MapContainer 
+              center={position} 
+              zoom={15} 
+              scrollWheelZoom={false} 
+              className="h-full w-full"
+            >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -51,6 +56,17 @@ const LocationSection = () => {
           </div>
         </div>
       </div>
+      
+      {/* Add this style tag if you can't modify global CSS */}
+      <style jsx>{`
+        .leaflet-container {
+          position: relative;
+          z-index: 0 !important;
+        }
+        .leaflet-top, .leaflet-bottom {
+          z-index: 1 !important;
+        }
+      `}</style>
     </section>
   );
 };

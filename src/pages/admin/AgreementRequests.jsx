@@ -14,7 +14,7 @@ const AgreementRequests = () => {
 
         const token = await user.getIdToken();
 
-        const res = await axios.get("http://localhost:3000/agreements?status=pending", {
+        const res = await axios.get("https://unit-app-server.vercel.app/agreements?status=pending", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -37,7 +37,7 @@ const AgreementRequests = () => {
 
       const token = await user.getIdToken();
 
-      await axios.patch(`http://localhost:3000/agreements/${id}`, {
+      await axios.patch(`https://unit-app-server.vercel.app/agreements/${id}`, {
         status: "checked",
         promote: action === "accept", // true for Accept, false for Reject
       }, {
@@ -54,7 +54,7 @@ const AgreementRequests = () => {
   };
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded shadow">
       <h2 className="text-xl font-bold mb-4">Agreement Requests</h2>
       <table className="w-full bg-white border text-sm">
         <thead>

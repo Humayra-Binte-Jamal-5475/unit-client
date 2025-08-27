@@ -14,7 +14,7 @@ const MakeAnnouncement = () => {
       const token = await user.getIdToken();
 
       await axios.post(
-        "http://localhost:3000/announcements",
+        "https://unit-app-server.vercel.app/announcements",
         {
           title: form.title,
           content: form.description, // must match backend
@@ -35,7 +35,7 @@ const MakeAnnouncement = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded shadow space-y-4">
       <h2 className="text-xl font-bold">Make Announcement</h2>
       <input
         type="text"
@@ -43,14 +43,14 @@ const MakeAnnouncement = () => {
         required
         value={form.title}
         onChange={(e) => setForm({ ...form, title: e.target.value })}
-        className="input input-bordered w-full"
+        className="input input-bordered w-full  bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
       <textarea
         placeholder="Description"
         required
         value={form.description}
         onChange={(e) => setForm({ ...form, description: e.target.value })}
-        className="textarea textarea-bordered w-full"
+        className="textarea textarea-bordered w-full  bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
       <button className="btn btn-primary">Submit</button>
     </form>

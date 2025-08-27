@@ -22,11 +22,14 @@ const AuthProvider = ({ children }) => {
   const googleProvider = new GoogleAuthProvider();
 
   const syncWithBackend = async (firebaseUser) => {
+    let data = null; // ✅ declare data outside
+
     try {
       const token = await firebaseUser.getIdToken();
       localStorage.setItem("token", token);
 
-      const { data } = await axios.post("http://localhost:3000/auth/login", { token });
+      const res = await axios.post("https://unit-app-server.vercel.app/auth/login", { token });
+      data = res.data;
 
       setUser({
         uid: firebaseUser.uid,
@@ -44,9 +47,13 @@ const AuthProvider = ({ children }) => {
         photoURL: firebaseUser.photoURL,
         role: "user",
       });
-    } finally{
-      console.log("Logged in user role:", data.role);
-    }   
+    } finally {
+      if (data?.role) {
+        console.log("✅ Logged in user role:", data.role);
+      } else {
+        console.log("ℹ️ Could not retrieve role. Defaulted to 'user'.");
+      }
+    }
   };
 
   useEffect(() => {

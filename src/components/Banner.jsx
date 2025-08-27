@@ -1,60 +1,49 @@
-import { useRef, useEffect } from "react";
-import { animate } from "motion";
+import { useEffect, useRef } from "react";
 import img1 from "../assets/banner-img1.jpg";
 import img2 from "../assets/banner-img2.jpg";
+import img3 from "../assets/banner-img3.avif";
+import img4 from "../assets/banner-img4.avif";
 
-/*************************************************
- * FancyBanner — automatic sliding apartment images
- * Requirements honoured: only use existing imports
- *************************************************/
+const images = [img1, img2, img3, img4];
+
 const Banner = () => {
-  const trackRef = useRef(null);
+  const indexRef = useRef(0);
+  const bgRef = useRef(null);
 
-  /* Seamless sideways loop: translate X from 0% to -100% over 12s
-     The track contains 2× the image set so you never see a gap. */
   useEffect(() => {
-    if (trackRef.current) {
-      animate(
-        trackRef.current,
-        { x: ["0%", "-100%"] },
-        {
-          duration: 12,
-          repeat: Infinity,
-          easing: "linear",
-        }
-      );
-    }
+    const interval = setInterval(() => {
+      indexRef.current = (indexRef.current + 1) % images.length;
+      if (bgRef.current) {
+        bgRef.current.style.backgroundImage = `url(${images[indexRef.current]})`;
+      }
+    }, 5000); // change every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
-  const images = [img1, img2];
-
   return (
-    <section className="relative h-[60vh] w-full overflow-hidden rounded-2xl shadow-xl bg-[#F4EDE4] my-10">
-      {/* Gradient overlay for readability */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
+    <section
+      ref={bgRef}
+      className="relative h-[70vh] w-full flex items-center justify-center text-white px-6 transition-all duration-1000 ease-in-out"
+      style={{
+        backgroundImage: `url(${img1})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        boxShadow: "inset 0 0 100px rgba(0, 0, 0, 0.5)",
+      }}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/40 z-0" />
 
-      {/* Sliding track */}
-      <div ref={trackRef} className="absolute inset-0 flex z-0">
-        {/* duplicate image array twice for seamless loop */}
-        {[...images, ...images].map((src, idx) => (
-          <img
-            key={idx}
-            src={src}
-            alt={`slide-${idx}`}
-            className="h-full w-full flex-shrink-0 object-cover"
-          />
-        ))}
-      </div>
-
-      {/* Text overlay */}
-      <div className="relative z-20 h-full flex flex-col justify-center pl-8 md:pl-16 text-white">
-        <h1 className="text-4xl md:text-6xl font-extrabold drop-shadow-lg">
-          Experience Elevated Living
+      {/* Text content */}
+      <div className="relative z-10 text-center animate-fade-in">
+        <h1 className="text-4xl md:text-5xl font-extrabold drop-shadow-md">
+          Welcome to Unité Living
         </h1>
-        <p className="mt-4 max-w-md text-lg md:text-2xl drop-shadow-md">
-          Modern apartments, premium amenities, and a community that feels like family.
+        <p className="mt-4 text-lg md:text-xl max-w-xl mx-auto drop-shadow-sm">
+          Smart, elegant apartments with everything you need for comfort and style.
         </p>
-        <button className="mt-6 self-start bg-[#334155] hover:bg-[#1F1F1F] text-[#FAF9F6] font-semibold px-6 py-3 rounded-full shadow-md">
+        <button className="mt-6 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition">
           Explore Apartments
         </button>
       </div>
@@ -63,6 +52,8 @@ const Banner = () => {
 };
 
 export default Banner;
+
+
 
 
 
