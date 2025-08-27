@@ -9,7 +9,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Home
@@ -17,7 +17,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/admin-profile"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Admin Profile
@@ -25,7 +25,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/members"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Manage Members
@@ -33,7 +33,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/announcements"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Make Announcement
@@ -41,7 +41,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/agreements"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Agreement Requests
@@ -49,7 +49,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/coupons"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
             Manage Coupons
@@ -57,7 +57,7 @@ const AdminDashboardLayout = () => {
           <NavLink
             to="/admin/overview"
             className={({ isActive }) =>
-              isActive ? "text-yellow-300 font-semibold" : "hover:text-yellow-200"
+              isActive ? "text-orange-200 font-semibold" : "hover:text-orange-200"
             }
           >
            Overview
