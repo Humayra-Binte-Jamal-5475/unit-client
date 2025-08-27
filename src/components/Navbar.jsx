@@ -13,7 +13,7 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
-  // Apply theme to <html> element
+  // Apply theme to <html>
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -25,84 +25,67 @@ const NavBar = () => {
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme); // DaisyUI
-    setTheme(newTheme); // update state
-    localStorage.setItem("theme", newTheme); // persist
+    document.documentElement.setAttribute("data-theme", newTheme); 
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
   };
-
 
   const handleLogout = () => {
     logOut()
       .then(() => {
-        Swal.fire({
-          text: "You have been logged out.",
-          icon: "success",
-          confirmButtonText: "Close",
-        });
+        Swal.fire({ text: "You have been logged out.", icon: "success", confirmButtonText: "Close" });
         setOpen(false);
       })
-      .catch((err) => console.error("Logout error:", err));
+      .catch((err) => console.error(err));
   };
 
   const navLinkStyle = ({ isActive }) =>
-    `hover:text-[#DAA49A] transition-colors ${isActive
-      ? "text-[#334155] font-semibold dark:text-[#F4EDE4]"
-      : "text-[#1F1F1F] dark:text-gray-200"
-    }`;
+    `hover:text-[#DAA49A] transition-colors ${isActive ? "text-[#334155] font-semibold dark:text-[#F4EDE4]" : "text-[#1F1F1F] dark:text-gray-200"}`;
 
   return (
-    <nav className="bg-[#F4EDE4]/80 backdrop-blur shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-50 dark:bg-[#1f1f1f]/90  dark:text-gray-200">
-      {/* Logo + brand */}
-      <Link
-        to="/"
-        className="text-xl font-bold text-[#334155] dark:text-white flex items-center gap-2"
-      >
-        <img
-          src={logo}
-          alt="Unité logo"
-          className="w-8 h-8 rounded-full object-cover"
-        />
+    <nav className="bg-[#F4EDE4]/80 dark:bg-[#1f1f1f]/90 backdrop-blur shadow-md px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+      {/* Logo */}
+      <Link to="/" className="text-xl font-bold flex items-center gap-2 text-[#334155] dark:text-white">
+        <img src={logo} alt="logo" className="w-8 h-8 rounded-full object-cover" />
         <span>Unité</span>
       </Link>
 
-      {/* Navigation Links */}
+      {/* Links */}
       <ul className="hidden md:flex space-x-6 items-center font-medium">
-        <li>
-          <NavLink to="/" className={navLinkStyle} end>
-            Home
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/apartments" className={navLinkStyle}>
-            Apartment
-          </NavLink>
-        </li>
+        <li><NavLink to="/" className={navLinkStyle} end>Home</NavLink></li>
+        <li><NavLink to="/apartments" className={navLinkStyle}>Apartment</NavLink></li>
+
+        {!user && (
+          <>
+            <li><NavLink to="/auth/login" className={navLinkStyle}>Login</NavLink></li>
+          </>
+        )}
+
+        {user && (
+          <>
+            <li>
+              <button
+                onClick={handleLogout}
+                className="text-[#B35648] hover:text-[#DAA49A] transition-colors"
+              >
+                Logout
+              </button>
+            </li>
+          </>
+        )}
       </ul>
 
-      {/* Right section (Theme + Auth) */}
+      {/* Right: Theme + user dropdown */}
       <div className="flex items-center gap-3">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-[#e5ddd4] dark:hover:bg-[#2a2a2a]"
-        >
-          {theme === "dark" ? (
-            <BsSun className="h-6 w-6 text-yellow-400" />
-          ) : (
-            <BsMoonStars className="h-6 w-6 text-[#334155]" />
-          )}
+        <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-[#e5ddd4] dark:hover:bg-[#2a2a2a]">
+          {theme === "dark" ? <BsSun className="h-6 w-6 text-yellow-400" /> : <BsMoonStars className="h-6 w-6 text-[#334155]" />}
         </button>
 
-        {/* Auth section */}
-        {user ? (
+        {user && (
           <div className="relative">
             <button onClick={() => setOpen(!open)} className="flex items-center gap-2">
               {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt="User"
-                  className="h-9 w-9 rounded-full border-2 border-[#334155] object-cover"
-                />
+                <img src={user.photoURL} alt="User" className="h-9 w-9 rounded-full border-2 border-[#334155] object-cover" />
               ) : (
                 <FaCircleUser className="h-8 w-8 text-[#334155] dark:text-gray-200" />
               )}
@@ -113,40 +96,17 @@ const NavBar = () => {
                 <div className="px-4 py-3 text-sm font-medium text-[#1F1F1F] dark:text-gray-200 border-b dark:border-gray-700">
                   {user.displayName || user.name}
                 </div>
-
-                {/* role-aware dashboard link */}
                 <Link
-                  to={
-                    user.role === "admin"
-                      ? "/admin"
-                      : user.role === "member"
-                        ? "/member"
-                        : "/dashboard"
-                  }
+                  to={user.role === "admin" ? "/admin" : user.role === "member" ? "/member" : "/dashboard"}
                   className="flex items-center gap-2 px-4 py-3 hover:bg-[#F4EDE4] dark:hover:bg-[#3a3a3a] text-[#1F1F1F] dark:text-gray-200"
                   onClick={() => setOpen(false)}
                 >
                   <MdDashboard />
-                  {user.role === "admin"
-                    ? "Admin Panel"
-                    : user.role === "member"
-                      ? "Member Panel"
-                      : "Dashboard"}
+                  Dashboard
                 </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-2 px-4 py-3 hover:bg-[#F4EDE4] dark:hover:bg-[#3a3a3a] text-[#B35648]"
-                >
-                  <FiLogOut /> Logout
-                </button>
               </div>
             )}
           </div>
-        ) : (
-          <Link to="/auth/login" className="p-2 rounded-full hover:bg-[#F4EDE4] dark:hover:bg-[#2a2a2a]">
-            <FaCircleUser className="h-7 w-7 text-[#334155] dark:text-gray-200" />
-          </Link>
         )}
       </div>
     </nav>
@@ -154,6 +114,7 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
 
 
 
